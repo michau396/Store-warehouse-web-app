@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Statistics</title>
+</head>
+<body>
+<h1>Product Statistics</h1>
+
+<p>Total Products: <span th:text="${totalProducts}"></span></p>
+<p>Total Quantity: <span th:text="${totalQuantity}"></span></p>
+<p>Average Price: <span th:text="${averagePrice}"></span></p>
+
+<h2>Most Expensive Product</h2>
+<div th:if="${mostExpensive != null}">
+    <p th:text="'Name: ' + ${mostExpensive.name}"></p>
+    <p th:text="'Price: ' + ${mostExpensive.price}"></p>
+</div>
+
+<h2>Products by User</h2>
+<table border="1">
+    <tr><th>User</th><th>Product Count</th></tr>
+    <tr th:each="entry : ${productsByUser}">
+        <td th:text="${entry.key}"></td>
+        <td th:text="${entry.value}"></td>
+    </tr>
+</table>
+
+<a href="/">← Back to Home</a>
+</body>
+</html>
