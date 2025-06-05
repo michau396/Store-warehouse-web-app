@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 @Controller
 public class ProductController {
 
@@ -29,6 +28,12 @@ public class ProductController {
 
     @Autowired
     private UserRepository userRepo;
+
+    // ✅ Predefined categories for dropdown
+    @ModelAttribute("categories")
+    public List<String> categories() {
+        return List.of("Sweets & Candies", "Chips & Savory Snacks", "Beverages", "Instant meals"); // You can expand this list
+    }
 
     @GetMapping("/")
     public String home(Model model) {
@@ -57,7 +62,6 @@ public class ProductController {
         return "redirect:/";
     }
 
-    // Nowy endpoint: przekierowanie wyszukiwania do /products z parametrem name
     @GetMapping("/search")
     public String redirectSearch(@RequestParam("keyword") String keyword) {
         return "redirect:/products?name=" + keyword;
@@ -125,6 +129,7 @@ public class ProductController {
 
         return "index";
     }
+
     @GetMapping("/stats")
     public String showStatistics(Model model) {
         model.addAttribute("totalProducts", productRepo.countAllProducts());
@@ -143,7 +148,6 @@ public class ProductController {
 
         return "statistics";
     }
-
-
 }
+
 
