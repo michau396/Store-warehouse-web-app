@@ -20,6 +20,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("SELECT p FROM Product p ORDER BY p.price DESC LIMIT 1")
     Product findMostExpensiveProduct();
+    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MIN(price) FROM Product)")
+    Product findLeastExpensiveProduct();
+
+    @Query("SELECT p FROM Product p WHERE p.quantity = (SELECT MAX(quantity) FROM Product)")
+    Product findProductWithLargestQuantity();
 
     @Query("SELECT p.assignedUser.username, COUNT(p) FROM Product p GROUP BY p.assignedUser.username")
     List<Object[]> countProductsByUser();

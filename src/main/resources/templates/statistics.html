@@ -2,29 +2,129 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Style to control the size of the chart containers -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 250px; /* Reduced width to make charts smaller */
+            height: 125px; /* Reduced height to maintain aspect ratio */
+            margin-bottom: 2rem; /* Add some space between charts */
+        }
+    </style>
 </head>
 <body>
 <h1>Product Statistics</h1>
 
-<p>Total Products: <span th:text="${totalProducts}"></span></p>
-<p>Total Quantity: <span th:text="${totalQuantity}"></span></p>
-<p>Average Price: <span th:text="${averagePrice}"></span></p>
-
-<h2>Most Expensive Product</h2>
-<div th:if="${mostExpensive != null}">
-    <p th:text="'Name: ' + ${mostExpensive.name}"></p>
-    <p th:text="'Price: ' + ${mostExpensive.price}"></p>
+<h3>Warehouse Summary</h3>
+<!-- Wrap canvas in a container div to control its size -->
+<div class="chart-container">
+    <canvas id="summaryChart"></canvas>
 </div>
 
-<h2>Products by User</h2>
-<table border="1">
-    <tr><th>User</th><th>Product Count</th></tr>
-    <tr th:each="entry : ${productsByUser}">
-        <td th:text="${entry.key}"></td>
-        <td th:text="${entry.value}"></td>
-    </tr>
-</table>
+
+<h3>Products by User</h3>
+<!-- Wrap canvas in a container div to control its size -->
+<div class="chart-container">
+    <canvas id="userChart"></canvas>
+</div>
+
+
+<h2>Key Product Highlights</h2>
+
+<div th:if="${mostExpensive != null}">
+    <h3>Most Expensive Product</h3>
+    <p><strong>Name:</strong> <span th:text="${mostExpensive.name}"></span></p>
+    <p><strong>Price:</strong> <span th:text="${mostExpensive.price}"></span></p>
+</div>
+
+<div th:if="${leastExpensive != null}">
+    <h3>Least Expensive Product</h3>
+    <p><strong>Name:</strong> <span th:text="${leastExpensive.name}"></span></p>
+    <p><strong>Price:</strong> <span th:text="${leastExpensive.price}"></span></p>
+</div>
+
+<div th:if="${largestQuantity != null}">
+    <h3>Product with Largest Quantity</h3>
+    <p><strong>Name:</strong> <span th:text="${largestQuantity.name}"></span></p>
+    <p><strong>Quantity:</strong> <span th:text="${largestQuantity.quantity}"></span></p>
+</div>
 
 <a href="/">← Back to Home</a>
+
+<!-- Hidden JSON data blocks for JS-safe parsing -->
+<div id="userLabels" th:text="${userLabels}" style="display:none;"></div>
+<div id="userData" th:text="${userData}" style="display:none;"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    const totalProducts = /*[[${totalProducts}]]*/ 0;
+    const totalQuantity = /*[[${totalQuantity}]]*/ 0;
+    const averagePrice = /*[[${averagePrice}]]*/ 0;
+
+    const userLabels = JSON.parse(document.getElementById('userLabels').textContent);
+    const userData = JSON.parse(document.getElementById('userData').textContent);
+
+    // Bar chart for totals
+    const ctx1 = document.getElementById('summaryChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Total Products', 'Total Quantity', 'Avg Price'],
+            datasets: [{
+                label: 'Warehouse Summary',
+                data: [totalProducts, totalQuantity, averagePrice],
+                backgroundColor: ['#3498db', '#2ecc71', '#e67e22']
+            }]
+        },
+        options: {
+            responsive: true,
+            // When responsive, it's best to disable the default aspect ratio
+            // so the chart perfectly fills the container.
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Warehouse Summary'
+                }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Pie chart for products per user
+    const ctx2 = document.getElementById('userChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: userLabels,
+            datasets: [{
+                label: 'Products by User',
+                data: userData,
+                backgroundColor: [
+                    '#1abc9c', '#9b59b6', '#f1c40f', '#e74c3c', '#34495e'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Products by User'
+                }
+            }
+        }
+    });
+    /*]]>*/
+</script>
 </body>
 </html>
+
+
+
+
+

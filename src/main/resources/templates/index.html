@@ -7,7 +7,7 @@
 <h1>Product Inventory</h1>
 
 <a href="/add">Add Product</a> |
-<a th:href="@{/products}">Wyczyść filtry</a>
+<a th:href="@{/products}">Remove filters</a>
 
 <form action="/products" method="get">
     <input type="text" name="name" placeholder="Name" th:value="${name}" />

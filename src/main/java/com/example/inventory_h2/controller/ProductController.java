@@ -6,6 +6,9 @@ import com.example.inventory_h2.repository.ProductRepository;
 import com.example.inventory_h2.repository.UserRepository;
 import com.example.inventory_h2.specifications.ProductSpecifications;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +31,10 @@ public class ProductController {
 
     @Autowired
     private UserRepository userRepo;
+
+    // Inject ObjectMapper to convert objects to JSON strings
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // ✅ Predefined categories for dropdown
     @ModelAttribute("categories")
@@ -131,11 +138,13 @@ public class ProductController {
     }
 
     @GetMapping("/stats")
-    public String showStatistics(Model model) {
+    public String showStatistics(Model model) throws JsonProcessingException {
         model.addAttribute("totalProducts", productRepo.countAllProducts());
         model.addAttribute("totalQuantity", productRepo.sumAllQuantities());
         model.addAttribute("averagePrice", productRepo.averagePrice());
         model.addAttribute("mostExpensive", productRepo.findMostExpensiveProduct());
+        model.addAttribute("leastExpensive", productRepo.findLeastExpensiveProduct());
+        model.addAttribute("largestQuantity", productRepo.findProductWithLargestQuantity());
 
         List<Object[]> userStats = productRepo.countProductsByUser();
         Map<String, Long> productsByUser = new LinkedHashMap<>();
@@ -144,10 +153,17 @@ public class ProductController {
             Long count = (Long) obj[1];
             productsByUser.put(username != null ? username : "Unassigned", count);
         }
-        model.addAttribute("productsByUser", productsByUser);
+
+        // Convert keys and values to JSON strings for Thymeleaf safe JS parsing
+        String userLabelsJson = objectMapper.writeValueAsString(productsByUser.keySet());
+        String userDataJson = objectMapper.writeValueAsString(productsByUser.values());
+
+        model.addAttribute("userLabels", userLabelsJson);
+        model.addAttribute("userData", userDataJson);
 
         return "statistics";
     }
 }
+
 
 
