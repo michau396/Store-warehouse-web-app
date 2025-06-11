@@ -1,101 +1,306 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
     <title>Statistics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Style to control the size of the chart containers -->
     <style>
+        :root {
+            --primary-color: #007bff; /* A vibrant blue for main actions */
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d; /* A subtle grey for secondary elements */
+            --background-light: #f8f9fa; /* Light background for the page */
+            --card-background: #ffffff; /* White background for content cards */
+            --text-color-dark: #343a40; /* Dark text for readability */
+            --text-color-light: #6c757d;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --success-dark: #218838;
+            --danger-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--background-light);
+            color: var(--text-color-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Aligns content to the top within the flex container */
+            min-height: 100vh;
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 800px; /* Increased max-width to accommodate larger charts */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centers items horizontally within the container */
+            gap: 20px; /* Spacing between main sections */
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        h1 { /* Styling for the main page title */
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        h3 { /* Styling for section subtitles */
+            font-size: 1.6em;
+            color: var(--text-color-dark);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+            width: 100%; /* Ensure it spans the full width of its parent container */
+        }
+
+        .chart-section {
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .chart-container {
             position: relative;
-            width: 250px; /* Reduced width to make charts smaller */
-            height: 125px; /* Reduced height to maintain aspect ratio */
-            margin-bottom: 2rem; /* Add some space between charts */
+            width: 100%; /* Make charts fill the available width of their section */
+            height: 350px; /* Increased height to make charts much bigger (2-3 times larger than original 125px) */
+            margin-bottom: 1rem; /* Space below each chart */
+        }
+
+        /* Ensure canvas element fills its container */
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .highlight-cards-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid for highlights */
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .highlight-card {
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .highlight-card h3 {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: left; /* Align highlight card titles to the left */
+        }
+
+        .highlight-card p {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: var(--text-color-dark);
+        }
+
+        .highlight-card strong {
+            color: var(--text-color-dark); /* Ensure strong text remains dark */
+        }
+
+        a.button-link {
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
+            border: none;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            margin-top: 20px; /* Space above the back button */
+        }
+
+        a.button-link:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px; /* Reduce overall padding on smaller screens */
+            }
+            .content-container {
+                gap: 15px; /* Reduce gap between sections */
+                padding: 0 10px; /* Add some horizontal padding to the container */
+            }
+            h1 {
+                font-size: 2em;
+                margin-bottom: 15px;
+            }
+            h3 {
+                font-size: 1.4em;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }
+            .chart-section {
+                padding: 15px;
+            }
+            .chart-container {
+                height: 250px; /* Adjust chart height for smaller screens */
+            }
+            .highlight-cards-wrapper {
+                grid-template-columns: 1fr; /* Stack highlight cards vertically on small screens */
+            }
+            .highlight-card {
+                padding: 20px;
+            }
+            a.button-link {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
-<h1>Product Statistics</h1>
+<div class="content-container">
+    <h1>Product Statistics</h1>
 
-<h3>Warehouse Summary</h3>
-<!-- Wrap canvas in a container div to control its size -->
-<div class="chart-container">
-    <canvas id="summaryChart"></canvas>
+    <div class="chart-section">
+        <h3>Warehouse Summary</h3>
+        <div class="chart-container">
+            <canvas id="summaryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <h3>Products by User</h3>
+        <div class="chart-container">
+            <canvas id="userChart"></canvas>
+        </div>
+    </div>
+
+    <h2>Key Product Highlights</h2>
+    <div class="highlight-cards-wrapper">
+        <div th:if="${mostExpensive != null}" class="highlight-card">
+            <h3>Most Expensive Product</h3>
+            <p><strong>Name:</strong> <span th:text="${mostExpensive.name}"></span></p>
+            <p><strong>Price:</strong> <span th:text="${#numbers.formatDecimal(mostExpensive.price, 1, 2)}"></span></p>
+        </div>
+
+        <div th:if="${leastExpensive != null}" class="highlight-card">
+            <h3>Least Expensive Product</h3>
+            <p><strong>Name:</strong> <span th:text="${leastExpensive.name}"></span></p>
+            <p><strong>Price:</strong> <span th:text="${#numbers.formatDecimal(leastExpensive.price, 1, 2)}"></span></p>
+        </div>
+
+        <div th:if="${largestQuantity != null}" class="highlight-card">
+            <h3>Product with Largest Quantity</h3>
+            <p><strong>Name:</strong> <span th:text="${largestQuantity.name}"></span></p>
+            <p><strong>Quantity:</strong> <span th:text="${largestQuantity.quantity}"></span></p>
+        </div>
+    </div>
+
+    <a href="/" class="button-link">← Back to Home</a>
+
+    <!-- Hidden JSON data blocks for JS-safe parsing -->
+    <div id="userLabels" th:text="${userLabels}" style="display:none;"></div>
+    <div id="userData" th:text="${userData}" style="display:none;"></div>
 </div>
-
-
-<h3>Products by User</h3>
-<!-- Wrap canvas in a container div to control its size -->
-<div class="chart-container">
-    <canvas id="userChart"></canvas>
-</div>
-
-
-<h2>Key Product Highlights</h2>
-
-<div th:if="${mostExpensive != null}">
-    <h3>Most Expensive Product</h3>
-    <p><strong>Name:</strong> <span th:text="${mostExpensive.name}"></span></p>
-    <p><strong>Price:</strong> <span th:text="${mostExpensive.price}"></span></p>
-</div>
-
-<div th:if="${leastExpensive != null}">
-    <h3>Least Expensive Product</h3>
-    <p><strong>Name:</strong> <span th:text="${leastExpensive.name}"></span></p>
-    <p><strong>Price:</strong> <span th:text="${leastExpensive.price}"></span></p>
-</div>
-
-<div th:if="${largestQuantity != null}">
-    <h3>Product with Largest Quantity</h3>
-    <p><strong>Name:</strong> <span th:text="${largestQuantity.name}"></span></p>
-    <p><strong>Quantity:</strong> <span th:text="${largestQuantity.quantity}"></span></p>
-</div>
-
-<a href="/">← Back to Home</a>
-
-<!-- Hidden JSON data blocks for JS-safe parsing -->
-<div id="userLabels" th:text="${userLabels}" style="display:none;"></div>
-<div id="userData" th:text="${userData}" style="display:none;"></div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
 
+    // Retrieve data from ThymeLeaf variables
     const totalProducts = /*[[${totalProducts}]]*/ 0;
     const totalQuantity = /*[[${totalQuantity}]]*/ 0;
     const averagePrice = /*[[${averagePrice}]]*/ 0;
 
+    // Parse JSON data from hidden divs
     const userLabels = JSON.parse(document.getElementById('userLabels').textContent);
     const userData = JSON.parse(document.getElementById('userData').textContent);
 
-    // Bar chart for totals
+    // Get contexts for the chart canvases
     const ctx1 = document.getElementById('summaryChart').getContext('2d');
+    const ctx2 = document.getElementById('userChart').getContext('2d');
+
+    // Create the Bar Chart for Warehouse Summary
     new Chart(ctx1, {
         type: 'bar',
         data: {
             labels: ['Total Products', 'Total Quantity', 'Avg Price'],
             datasets: [{
-                label: 'Warehouse Summary',
+                label: 'Summary Data', // Changed label for clarity
                 data: [totalProducts, totalQuantity, averagePrice],
-                backgroundColor: ['#3498db', '#2ecc71', '#e67e22']
+                backgroundColor: [
+                    'rgba(0, 123, 255, 0.7)', // Primary color with transparency
+                    'rgba(40, 167, 69, 0.7)', // Success color with transparency
+                    'rgba(255, 193, 7, 0.7)'  // A warning-like color for average price
+                ],
+                borderColor: [
+                    'var(--primary-color)',
+                    'var(--success-color)',
+                    '#ffc107' // Matching border color
+                ],
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            // When responsive, it's best to disable the default aspect ratio
-            // so the chart perfectly fills the container.
-            maintainAspectRatio: false,
+            maintainAspectRatio: false, // Important for chart to fill its container
             plugins: {
-                legend: { display: false },
+                legend: { display: false }, // Legend is not necessary for this simple bar chart
                 title: {
                     display: true,
-                    text: 'Warehouse Summary'
+                    text: 'Warehouse Summary',
+                    font: {
+                        size: 18, // Larger title font size
+                        weight: 'bold',
+                        family: 'Roboto'
+                    },
+                    color: 'var(--text-color-dark)'
                 }
             },
-            scales: { y: { beginAtZero: true } }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)' // Lighter grid lines
+                    },
+                    ticks: {
+                        color: 'var(--text-color-light)' // Lighter tick labels
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false // No vertical grid lines
+                    },
+                    ticks: {
+                        color: 'var(--text-color-light)'
+                    }
+                }
+            }
         }
     });
 
-    // Pie chart for products per user
-    const ctx2 = document.getElementById('userChart').getContext('2d');
+    // Create the Pie Chart for Products by User
     new Chart(ctx2, {
         type: 'pie',
         data: {
@@ -104,8 +309,16 @@
                 label: 'Products by User',
                 data: userData,
                 backgroundColor: [
-                    '#1abc9c', '#9b59b6', '#f1c40f', '#e74c3c', '#34495e'
-                ]
+                    'rgba(0, 123, 255, 0.7)', // Primary Blue
+                    'rgba(40, 167, 69, 0.7)',  // Success Green
+                    'rgba(255, 193, 7, 0.7)',  // Warning Yellow
+                    'rgba(220, 53, 69, 0.7)',  // Danger Red
+                    'rgba(108, 117, 125, 0.7)', // Secondary Gray
+                    'rgba(23, 162, 184, 0.7)', // Info Cyan
+                    'rgba(255, 102, 0, 0.7)'  // Orange
+                ],
+                borderColor: 'var(--card-background)', // White borders between slices
+                borderWidth: 2
             }]
         },
         options: {
@@ -114,7 +327,24 @@
             plugins: {
                 title: {
                     display: true,
-                    text: 'Products by User'
+                    text: 'Products by User',
+                    font: {
+                        size: 18,
+                        weight: 'bold',
+                        family: 'Roboto'
+                    },
+                    color: 'var(--text-color-dark)'
+                },
+                legend: {
+                    display: true, // Display the legend for the pie chart
+                    position: 'right', // Place legend on the right for better use of space
+                    labels: {
+                        color: 'var(--text-color-dark)',
+                        font: {
+                            size: 14,
+                            family: 'Roboto'
+                        }
+                    }
                 }
             }
         }

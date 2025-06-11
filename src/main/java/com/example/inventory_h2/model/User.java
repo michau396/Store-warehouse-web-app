@@ -19,16 +19,16 @@ public class User implements UserDetails {
 
     private String email;
 
-    private String password;  // Add password field for login
+    private String password;  //password field for login
 
     @OneToMany(mappedBy = "assignedUser")
     private Set<Product> products;
 
-    // Add roles or authorities if needed
+    // Add roles
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> roles;
 
-    // Getters and setters...
+    // Getters and setters
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -1,39 +1,196 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
     <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        .error {
-            color: red;
-            margin-bottom: 10px;
+        :root {
+            --primary-color: #007bff; /* A vibrant blue for main actions */
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d; /* A subtle grey for secondary elements */
+            --background-light: #f8f9fa; /* Light background for the page */
+            --card-background: #ffffff; /* White background for content cards */
+            --text-color-dark: #343a40; /* Dark text for readability */
+            --text-color-light: #6c757d;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --success-dark: #218838;
+            --danger-color: #dc3545;
+            --danger-dark: #c82333;
+            --info-color: #17a2b8; /* A color for informational messages */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--background-light);
+            color: var(--text-color-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Keeps content at the top if there's extra space */
+            min-height: 100vh;
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 450px; /* A good max-width for a login form */
+            display: flex;
+            flex-direction: column; /* Stack children vertically */
+            align-items: center; /* Center items horizontally within this container */
+            margin-top: auto; /* Push to center vertically if body is short */
+            margin-bottom: auto; /* Push to center vertically if body is short */
+            gap: 20px; /* Space between message and form */
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px; /* Reduced margin as it's part of content-container gap */
+            text-align: center;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        /* Styling for alert messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px; /* Space below the alert */
+            font-weight: 500;
+            text-align: center;
+            width: 100%; /* Take full width of content-container */
+            box-sizing: border-box;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-danger {
+            background-color: #f8d7da; /* Light red background */
+            color: var(--danger-dark); /* Darker red text */
+            border: 1px solid var(--danger-color);
+        }
+
+        .alert-info {
+            background-color: #d1ecf1; /* Light cyan background */
+            color: #0c5460; /* Darker cyan text */
+            border: 1px solid var(--info-color);
+        }
+
+        /* Form styling similar to other pages */
+        .login-form-card { /* A specific class for the login form for clarity */
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Take full width of content-container */
+            box-sizing: border-box; /* Include padding in width calculation */
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Space between form groups */
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color-dark);
+            font-size: 1.05em;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+            width: 100%; /* Inputs fill their container */
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+            color: var(--text-color-dark);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        button[type="submit"] {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1em;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            width: 100%; /* Make button full width */
+            margin-top: 10px; /* Space above button */
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            .content-container {
+                padding: 0 15px; /* Add some horizontal padding on smaller screens */
+            }
+            .login-form-card {
+                padding: 30px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .alert {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+            button[type="submit"] {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
+<div class="content-container">
+    <h1>Login</h1>
 
-<!-- Show error if login failed -->
-<div th:if="${param.error}" class="error">
-    Invalid username or password
+    <div th:if="${param.error}" class="alert alert-danger">
+        Invalid username or password
+    </div>
+
+    <div th:if="${param.logout}" class="alert alert-info">
+        You have been logged out successfully.
+    </div>
+
+    <form th:action="@{/login}" method="post" class="login-form-card">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <div>
+            <button type="submit">Log in</button>
+        </div>
+    </form>
 </div>
-
-<!-- Show message if user logged out -->
-<div th:if="${param.logout}" class="info">
-    You have been logged out successfully.
-</div>
-
-<form th:action="@{/login}" method="post">
-    <div>
-        <label>Username:</label>
-        <input type="text" name="username" />
-    </div>
-    <div>
-        <label>Password:</label>
-        <input type="password" name="password" />
-    </div>
-    <div>
-        <button type="submit">Log in</button>
-    </div>
-</form>
-
 </body>
 </html>

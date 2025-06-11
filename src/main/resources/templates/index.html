@@ -1,110 +1,471 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Inventory</title>
+    <meta charset="UTF-8" />
+    <title>Product Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff; /* A vibrant blue for main actions */
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d; /* A subtle grey for secondary elements */
+            --background-light: #f8f9fa; /* Light background for the page */
+            --card-background: #ffffff; /* White background for content cards */
+            --text-color-dark: #343a40; /* Dark text for readability */
+            --text-color-light: #6c757d;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --success-dark: #218838;
+            --danger-color: #dc3545;
+            --danger-dark: #c82333;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--background-light);
+            color: var(--text-color-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 1200px; /* Wider for the table content */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px; /* Space between sections */
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-start; /* Align action buttons to the left */
+            gap: 15px;
+            width: 100%; /* Take full width of content-container */
+        }
+
+        .top-actions a.button-link {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        .top-actions a.button-link:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .filter-form-card {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap to next line */
+            /* Adjusted gap to control spacing between individual label/input groups */
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        /* New: Group for each filter category to control spacing */
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* Allow filter groups to grow and shrink */
+            min-width: 160px; /* Minimum width for each group */
+        }
+        /* Adjusted min-width for category select, as it often needs more space */
+        .filter-group.category-select {
+            min-width: 200px;
+        }
+
+
+        .filter-form-card label {
+            font-weight: 500;
+            color: var(--text-color-dark);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .filter-form-card input[type="text"],
+        .filter-form-card input[type="number"],
+        .filter-form-card select {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+            width: 100%; /* Make input/select fill its filter-group */
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+            color: var(--text-color-dark);
+            /* Remove margin-bottom from previous input/select styling */
+            margin-bottom: 0;
+        }
+
+        .filter-form-card input[type="text"]:focus,
+        .filter-form-card input[type="number"]:focus,
+        .filter-form-card select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        /* New: Styles for default selected option in dropdown */
+        .filter-form-card select option[value=""][disabled] {
+            color: var(--text-color-light); /* Lighter color for placeholder */
+        }
+        .filter-form-card select:invalid {
+            color: var(--text-color-light); /* Apply placeholder color if no valid option selected */
+        }
+        .filter-form-card select:valid {
+            color: var(--text-color-dark); /* Darker color once a valid option is chosen */
+        }
+
+
+        .filter-buttons {
+            display: flex;
+            gap: 15px; /* Space between the two buttons */
+            margin-left: auto; /* Pushes the buttons to the right in the filter form */
+            /* New: Ensure buttons align with the bottom of inputs */
+            align-self: flex-end;
+        }
+
+        .filter-form-card button[type="submit"],
+        .filter-form-card a.button-link {
+            padding: 10px 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .filter-form-card button[type="submit"] {
+            background-color: var(--primary-color);
+        }
+
+        .filter-form-card button[type="submit"]:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .filter-form-card a.button-link {
+            background-color: var(--secondary-color);
+        }
+
+        .filter-form-card a.button-link:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        th a {
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding-right: 15px;
+        }
+
+        th a:hover {
+            text-decoration: underline;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e9ecef;
+        }
+
+        td {
+            color: var(--text-color-dark);
+            white-space: nowrap;
+        }
+
+        table tr[th:if="${products.size() == 0}"] td {
+                                                      text-align: center;
+                                                      font-style: italic;
+                                                      color: var(--text-color-light);
+                                                      padding: 20px;
+                                                  }
+
+        .action-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-right: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .action-links a:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+        .action-links a:last-child {
+            margin-right: 0;
+            color: var(--danger-color);
+        }
+
+        .action-links a:last-child:hover {
+            color: var(--danger-dark);
+        }
+
+        .bottom-nav-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bottom-nav-link a.button-link {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+        }
+
+        .bottom-nav-link a.button-link:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            .content-container {
+                gap: 20px;
+                padding: 0 5px;
+            }
+            h1 {
+                font-size: 2em;
+                margin-bottom: 15px;
+            }
+            .top-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .top-actions a.button-link {
+                width: 100%;
+                text-align: center;
+            }
+            .filter-form-card {
+                padding: 20px;
+                flex-direction: column; /* Stack filters vertically */
+                gap: 15px; /* Adjust gap when stacking */
+            }
+            .filter-group {
+                width: 100%; /* Make each filter group full width */
+                min-width: unset; /* Remove min-width constraint */
+            }
+            .filter-form-card input, .filter-form-card select {
+                width: 100%; /* Ensure inputs/selects fill their new full-width group */
+            }
+            .filter-buttons {
+                flex-direction: column; /* Stack buttons vertically on small screens */
+                width: 100%;
+                margin-left: 0;
+            }
+            .filter-form-card button[type="submit"],
+            .filter-form-card a.button-link {
+                width: 100%;
+                margin-right: 0;
+            }
+            th, td {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>Product Inventory</h1>
+<div class="content-container">
+    <h1>Product Inventory</h1>
 
-<a href="/add">Add Product</a> |
-<a th:href="@{/products}">Remove filters</a>
+    <div class="top-actions">
+        <a href="/add" class="button-link">Add Product</a>
+    </div>
 
-<form action="/products" method="get">
-    <input type="text" name="name" placeholder="Name" th:value="${name}" />
+    <form action="/products" method="get" class="filter-form-card">
+        <div class="filter-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Filter by Name" th:value="${name}" />
+        </div>
 
-    <label>Category:</label>
-    <select name="category" th:value="${category}">
-        <option value="">-- Choose category --</option>
-        <option th:each="cat : ${categories}"
-                th:value="${cat}"
-                th:text="${cat}"
-                th:selected="${cat == category}">
-        </option>
-    </select>
+        <div class="filter-group category-select">
+            <label for="category">Category:</label>
+            <select id="category" name="category" th:value="${category}">
+                <option value="" disabled selected>-- Choose category --</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat}"
+                        th:text="${cat}"
+                        th:selected="${cat == category}">
+                </option>
+            </select>
+        </div>
 
-    <input type="text" name="supplier" placeholder="Supplier" th:value="${supplier}" />
-    <input type="number" step="0.01" name="minPrice" placeholder="Min Price" th:value="${minPrice}" />
-    <input type="number" step="0.01" name="maxPrice" placeholder="Max Price" th:value="${maxPrice}" />
-    </select>
+        <div class="filter-group">
+            <label for="supplier">Supplier:</label>
+            <input type="text" id="supplier" name="supplier" placeholder="Filter by Supplier" th:value="${supplier}" />
+        </div>
 
-    <button type="submit">Filter</button>
-</form>
+        <div class="filter-group">
+            <label for="minPrice">Min Price:</label>
+            <input type="number" step="0.01" id="minPrice" name="minPrice" placeholder="Min Price" th:value="${minPrice}" />
+        </div>
 
-<table border="1">
-    <tr>
-        <th>
-            <a th:href="@{/products(sortBy='id', sortDir=${sortBy == 'id' && sortDir == 'asc' ? 'desc' : 'asc'},
-                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                ID
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='name', sortDir=${sortBy == 'name' && sortDir == 'asc' ? 'desc' : 'asc'},
-                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Name
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='category', sortDir=${sortBy == 'category' && sortDir == 'asc' ? 'desc' : 'asc'},
-                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Category
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='quantity', sortDir=${sortBy == 'quantity' && sortDir == 'asc' ? 'desc' : 'asc'},
-                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Quantity
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='price', sortDir=${sortBy == 'price' && sortDir == 'asc' ? 'desc' : 'asc'},
-                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Price
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='supplier', sortDir=${sortBy == 'supplier' && sortDir == 'asc' ? 'desc' : 'asc'},
+        <div class="filter-group">
+            <label for="maxPrice">Max Price:</label>
+            <input type="number" step="0.01" id="maxPrice" name="maxPrice" placeholder="Max Price" th:value="${maxPrice}" />
+        </div>
+
+        <div class="filter-buttons">
+            <button type="submit">Filter</button>
+            <a th:href="@{/products}" class="button-link">Remove filters</a>
+        </div>
+    </form>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>
+                    <a th:href="@{/products(sortBy='id', sortDir=${sortBy == 'id' && sortDir == 'asc' ? 'desc' : 'asc'},
+                                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
+                        ID
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='name', sortDir=${sortBy == 'name' && sortDir == 'asc' ? 'desc' : 'asc'},
+                                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
+                        Name
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='category', sortDir=${sortBy == 'category' && sortDir == 'asc' ? 'desc' : 'asc'},
+                                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
+                        Category
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='quantity', sortDir=${sortBy == 'quantity' && sortDir == 'asc' ? 'desc' : 'asc'},
+                                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
+                        Quantity
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='price', sortDir=${sortBy == 'price' && sortDir == 'asc' ? 'desc' : 'asc'},
+                                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
+                        Price
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='supplier', sortDir=${sortBy == 'supplier' && sortDir == 'asc' ? 'desc' : 'asc'},
         name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Supplier
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='expiryDate', sortDir=${sortBy == 'expiryDate' && sortDir == 'asc' ? 'desc' : 'asc'},
+                        Supplier
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='expiryDate', sortDir=${sortBy == 'expiryDate' && sortDir == 'asc' ? 'desc' : 'asc'},
         name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Expiry Date
-            </a>
-        </th>
-        <th>
-            <a th:href="@{/products(sortBy='assignedUser.username', sortDir=${sortBy == 'assignedUser.username' && sortDir == 'asc' ? 'desc' : 'asc'},
-                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
-                Assigned User
-            </a>
-        </th>
-        <th>Actions</th>
-    </tr>
+                        Expiry Date
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(sortBy='assignedUser.username', sortDir=${sortBy == 'assignedUser.username' && sortDir == 'asc' ? 'desc' : 'asc'},
+                                name=${name}, category=${category}, supplier=${supplier}, minPrice=${minPrice}, maxPrice=${maxPrice}, assignedUserId=${assignedUserId})}">
+                        Assigned User
+                    </a>
+                </th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${products.size() == 0}">
+                <td colspan="9">No results found.</td>
+            </tr>
 
-    <tr th:if="${products.size() == 0}">
-        <td colspan="9">Brak wyników.</td> <!-- ✅ Zwiększono colspan -->
-    </tr>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.id}"></td>
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.category}"></td>
+                <td th:text="${product.quantity}"></td>
+                <td th:text="${product.price}"></td>
+                <td th:text="${product.supplier}"></td>
+                <td th:text="${product.expiryDate}"></td>
+                <td th:text="${product.assignedUser != null ? product.assignedUser.username : 'Unassigned'}"></td>
+                <td class="action-links">
+                    <a th:href="@{/edit/{id}(id=${product.id})}">Edit</a>
+                    <a th:href="@{/delete/{id}(id=${product.id})}">Delete</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <tr th:each="product : ${products}">
-        <td th:text="${product.id}"></td>
-        <td th:text="${product.name}"></td>
-        <td th:text="${product.category}"></td>
-        <td th:text="${product.quantity}"></td>
-        <td th:text="${product.price}"></td>
-        <td th:text="${product.supplier}"></td> <!-- ✅ Dodano dane dostawcy -->
-        <td th:text="${product.expiryDate}"></td>
-        <td th:text="${product.assignedUser != null ? product.assignedUser.username : 'Unassigned'}"></td>
-        <td>
-            <a th:href="@{/edit/{id}(id=${product.id})}">Edit</a> |
-            <a th:href="@{/delete/{id}(id=${product.id})}">Delete</a>
-        </td>
-    </tr>
-</table>
-
-<a href="/stats">View Statistics</a>
-
+    <div class="bottom-nav-link">
+        <a href="/stats" class="button-link">View Statistics</a>
+    </div>
+</div>
 </body>
 </html>
 

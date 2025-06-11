@@ -1,45 +1,225 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
     <title>Add Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff; /* A vibrant blue for main actions */
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d; /* A subtle grey for secondary elements */
+            --background-light: #f8f9fa; /* Light background for the page */
+            --card-background: #ffffff; /* White background for content cards */
+            --text-color-dark: #343a40; /* Dark text for readability */
+            --text-color-light: #6c757d;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --success-dark: #218838;
+            --danger-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--background-light);
+            color: var(--text-color-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        h1 { /* Changed from h2 to h1 to match original HTML, adjusted styling for consistency */
+            font-size: 2.2em;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        form {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 20px; /* Space between form and back link */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color-dark);
+            font-size: 1.05em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+            width: calc(100% - 30px);
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+            color: var(--text-color-dark);
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: var(--success-color); /* Save button color */
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1em;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+
+        button:hover {
+            background-color: var(--success-dark);
+            transform: translateY(-2px);
+        }
+
+        a.button-link { /* Used for the "Back to Inventory" link */
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
+            border: none;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+        }
+
+        a.button-link:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 0 15px;
+            }
+            form {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            button, a.button-link {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>Add Product</h1>
+<div class="content-container">
+    <h1>Add Product</h1>
 
-<form th:action="@{/add}" th:object="${product}" method="post">
-    <label>Name:</label>
-    <input type="text" th:field="*{name}" required/><br/>
+    <form th:action="@{/add}" th:object="${product}" method="post">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" th:field="*{name}" required/>
+        </div>
 
-    <label>Category:</label>
-    <select th:field="*{category}" required>
-        <option value="" disabled selected>Choose category</option>
-        <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
-    </select><br/>
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" th:field="*{category}" required>
+                <option value="" disabled selected>Choose category</option>
+                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+            </select>
+        </div>
 
-    <label>Quantity:</label>
-    <input type="number" th:field="*{quantity}" min="0" required/><br/>
+        <div class="form-group">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" th:field="*{quantity}" min="0" required/>
+        </div>
 
-    <label>Price:</label>
-    <input type="number" step="0.01" th:field="*{price}" min="0" required/><br/>
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" step="0.01" id="price" th:field="*{price}" min="0" required/>
+        </div>
 
-    <label>Supplier:</label>
-    <input type="text" th:field="*{supplier}" /><br/>
+        <div class="form-group">
+            <label for="supplier">Supplier:</label>
+            <input type="text" id="supplier" th:field="*{supplier}" />
+        </div>
 
-    <label>Expiry Date:</label>
-    <input type="date" th:field="*{expiryDate}" /><br/>
+        <div class="form-group">
+            <label for="expiryDate">Expiry Date:</label>
+            <input type="date" id="expiryDate" th:field="*{expiryDate}" />
+        </div>
 
-    <label>Assigned User:</label>
-    <select id="assignedUser" name="assignedUserId" required>
-        <option value="" disabled selected>Select user</option>
-        <option th:each="user : ${users}"
-                th:value="${user.id}"
-                th:text="${user.username}">
-        </option>
-    </select><br/>
+        <div class="form-group">
+            <label for="assignedUser">Assigned User:</label>
+            <select id="assignedUser" name="assignedUserId" required>
+                <option value="" disabled selected>Select user</option>
+                <option th:each="user : ${users}"
+                        th:value="${user.id}"
+                        th:text="${user.username}">
+                </option>
+            </select>
+        </div>
 
-    <button type="submit">Save</button>
-</form>
-
-<a href="/">Back to Inventory</a>
+        <div class="actions">
+            <button type="submit">Save</button>
+            <a href="/" class="button-link">Back to Inventory</a>
+        </div>
+    </form>
+</div>
 </body>
 </html>

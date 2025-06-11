@@ -32,11 +32,10 @@ public class ProductController {
     @Autowired
     private UserRepository userRepo;
 
-    // Inject ObjectMapper to convert objects to JSON strings
     @Autowired
     private ObjectMapper objectMapper;
 
-    // ✅ Predefined categories for dropdown
+    // Predefined categories for dropdown
     @ModelAttribute("categories")
     public List<String> categories() {
         return List.of("Sweets & Candies", "Chips & Savory Snacks", "Beverages", "Instant meals"); // You can expand this list
@@ -154,7 +153,7 @@ public class ProductController {
             productsByUser.put(username != null ? username : "Unassigned", count);
         }
 
-        // Convert keys and values to JSON strings for Thymeleaf safe JS parsing
+
         String userLabelsJson = objectMapper.writeValueAsString(productsByUser.keySet());
         String userDataJson = objectMapper.writeValueAsString(productsByUser.values());
 
